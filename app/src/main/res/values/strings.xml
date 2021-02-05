@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Drama&amp;Company_aos_task</string>
+    <string name="common_title_name">GitHub Stars</string>
+    <string name="common_favorite">즐겨찾기</string>
+    <string name="common_search">검색</string>
 </resources>
