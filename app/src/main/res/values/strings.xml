@@ -3,4 +3,5 @@
     <string name="common_title_name">GitHub Stars</string>
     <string name="common_favorite">즐겨찾기</string>
     <string name="common_search">검색</string>
+    <string name="common_insert_name">이름을 입력해주세요</string>
 </resources>
