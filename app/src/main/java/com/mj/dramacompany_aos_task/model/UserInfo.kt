@@ -2,7 +2,7 @@ package com.mj.dramacompany_aos_task.model
 
 class UserInfo {
 
-    var items: MutableList<Info> = ArrayList()
+    var items: ArrayList<Info> = ArrayList()
 
     data class Info(
         var id: String? = null,

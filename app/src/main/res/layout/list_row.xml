@@ -8,6 +8,21 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/ll_initialize_area"
+            android:layout_width="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_height="20dp"
+            android:paddingHorizontal="20dp">
+
+            <TextView
+                android:id="@+id/txt_initialize_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textStyle="bold"
+                android:text="ㄱ"/>
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/ll_whole"
             android:layout_width="match_parent"
             android:layout_height="80dp"
