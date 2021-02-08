@@ -1,5 +1,9 @@
 package com.mj.dramacompany_aos_task.util
 
+import android.content.Context
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+
 open class Util {
 
     companion object{
@@ -27,6 +31,13 @@ open class Util {
         //들어온 char 값이 한국어인지 아닌지 구분
         fun isKorean(ch: Char): Boolean {
             return ch.toInt() >= "AC00".toInt(16) && ch.toInt() <= "D7A3".toInt(16)
+        }
+
+        fun hideKeyBoard(context: Context, view: View) {
+            val imm: InputMethodManager =
+                context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
         }
     }
 }

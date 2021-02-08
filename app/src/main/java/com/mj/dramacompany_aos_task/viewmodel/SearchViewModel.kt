@@ -21,6 +21,7 @@ class SearchViewModel : ViewModel() {
 
     //검색 api
     fun getSearchData() {
+
         RetrofitClient.getInstance()
             .create(RetrofitService::class.java)
             .searchUser(name.value, FIX_PAGE, FIX_PER_PAGE).enqueue(object : Callback<UserInfo> {
