@@ -70,7 +70,7 @@ class FavoriteViewModel : ViewModel() {
         userInfo.value = map
     }
 
-
+//d
     //이름 순으로 정렬하고 초성별로 그룹핑 실행
 //    private fun sortByName(data: MutableList<UserInfo.Info>) {
 //
