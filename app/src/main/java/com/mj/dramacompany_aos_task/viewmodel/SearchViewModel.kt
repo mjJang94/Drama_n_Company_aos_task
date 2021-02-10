@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mj.dramacompany_aos_task.config.FIX_PAGE
 import com.mj.dramacompany_aos_task.config.FIX_PER_PAGE
+import com.mj.dramacompany_aos_task.config.RESTRICT_NAME
 import com.mj.dramacompany_aos_task.config.api.RetrofitClient
 import com.mj.dramacompany_aos_task.config.api.RetrofitService
 import com.mj.dramacompany_aos_task.model.UserInfo
@@ -24,7 +25,7 @@ class SearchViewModel : ViewModel() {
 
         RetrofitClient.getInstance()
             .create(RetrofitService::class.java)
-            .searchUser(name.value, FIX_PAGE, FIX_PER_PAGE).enqueue(object : Callback<UserInfo> {
+            .searchUser(name.value+RESTRICT_NAME, FIX_PAGE, FIX_PER_PAGE).enqueue(object : Callback<UserInfo> {
 
                 override fun onResponse(call: Call<UserInfo>, response: Response<UserInfo>) {
 
@@ -45,7 +46,7 @@ class SearchViewModel : ViewModel() {
     }
 
     //이름 순으로 정렬하고 초성별로 그룹핑 실행
-    fun sortByName(data: UserInfo) {
+    private fun sortByName(data: UserInfo) {
 
         data.items.sortWith(Comparator { item1, item2 ->
 

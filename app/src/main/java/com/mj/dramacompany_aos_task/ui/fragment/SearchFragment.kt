@@ -34,28 +34,31 @@ class SearchFragment : Fragment() {
     //화면 구현에 필요한 요소들을 정의해줍니다.
     private fun initLayout() {
 
-
         //리사이클러뷰에 어댑터 연결
-        val adapter = DataListAdapter(Glide.with(this))
-        searchDataBinding.rcyUser.layoutManager = LinearLayoutManager(activity)
-        searchDataBinding.rcyUser.adapter = adapter
-        searchDataBinding.rcyUser.setHasFixedSize(true)
+        val adapter = DataListAdapter(activity!!.applicationContext, Glide.with(this))
+        searchDataBinding.searchRcyUser.layoutManager = LinearLayoutManager(activity)
+        searchDataBinding.searchRcyUser.adapter = adapter
+        searchDataBinding.searchRcyUser.setHasFixedSize(true)
+
 
         //소프트 키보드 확인버튼을 클릭해도 api 호출
         searchDataBinding.editSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE){
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 searchDataBinding.searchViewModel!!.getSearchData()
             }
             false
         }
+
 
         //live 데이터 userInfo 관찰
         searchDataBinding.searchViewModel!!.userInfo.observe(this, Observer { data ->
 
             //데이터를 adapter에 전달하여 row 구성
             data.let {
-                adapter.setData(data)
+                adapter.setData(it)
             }
         })
     }
+
+
 }

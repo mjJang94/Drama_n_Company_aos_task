@@ -12,30 +12,31 @@ import com.mj.dramacompany_aos_task.database.FavoiteDB
 import com.mj.dramacompany_aos_task.database.FavoriteEntity
 import com.mj.dramacompany_aos_task.databinding.ListRowBinding
 import com.mj.dramacompany_aos_task.model.UserInfo
+import com.mj.dramacompany_aos_task.viewmodel.FavoriteViewModel
 import kotlinx.coroutines.*
 import kotlin.math.sign
 
-class DataListAdapter(applicationContext: Context, var glide: RequestManager) : RecyclerView.Adapter<DataListAdapter.Holder>() {
+class FavoriteDataListAdapter(val applicationContext: Context, var glide: RequestManager, var favoriteViewModel: FavoriteViewModel) : RecyclerView.Adapter<FavoriteDataListAdapter.Holder>() {
 
     private var userInfo: MutableList<AdapterItem> = ArrayList()
 
     private var initialName: String = ""
 
-    private lateinit var savedID: List<Long>
+//    private lateinit var savedID: List<Long>
 
     private var favoriteDB: FavoiteDB = FavoiteDB.getInstance(applicationContext)!!
 
-    data class AdapterItem(var initial: Any?, var data: UserInfo.Info)
+    data class AdapterItem(var initial: Any?, var data: FavoriteEntity)
 
-    init {
+//    init {
+//
+//        GlobalScope.launch(Dispatchers.IO) {
+//            savedID = favoriteDB.dao().getID()
+//        }
+//
+//    }
 
-        GlobalScope.launch(Dispatchers.IO) {
-            savedID = favoriteDB.dao().getID()
-        }
-
-    }
-
-    fun setData(data: Map<Any?, List<UserInfo.Info>>) {
+    fun setData(data: Map<Any?, List<FavoriteEntity>>) {
         userInfo.clear()
         val keySet = data.keys
 
@@ -53,7 +54,7 @@ class DataListAdapter(applicationContext: Context, var glide: RequestManager) : 
         val listRowBinding = ListRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
 
 
-        return Holder(listRowBinding)
+        return Holder(listRowBinding, applicationContext)
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
@@ -65,7 +66,7 @@ class DataListAdapter(applicationContext: Context, var glide: RequestManager) : 
         return userInfo.size
     }
 
-    inner class Holder(private val bind: ListRowBinding) : RecyclerView.ViewHolder(bind.root) {
+    inner class Holder(private val bind: ListRowBinding, private val context: Context) : RecyclerView.ViewHolder(bind.root) {
 
 
         fun bind(data: AdapterItem) {
@@ -73,12 +74,12 @@ class DataListAdapter(applicationContext: Context, var glide: RequestManager) : 
             val tmpInitialName = data.initial.toString()
 
 
-            for (savedValue in savedID) {
-
-                if (data.data.id == savedValue) {
+//            for (savedValue in savedID) {
+//
+//                if (data.data.id == savedValue) {
                     bind.ivFavorite.isSelected = true
-                }
-            }
+//                }
+//            }
 
 
             //저장한 초성과 다를경우 헤더뷰를 노출시키고 다른 초성값 적용
@@ -103,45 +104,47 @@ class DataListAdapter(applicationContext: Context, var glide: RequestManager) : 
             //row 클릭시 해당 데이터 저장 및 삭제
             bind.llWhole.setOnClickListener {
 
-                when (bind.ivFavorite.isSelected) {
+//                when (bind.ivFavorite.isSelected) {
 
                     //즐겨찾기 비활성화
-                    true -> {
+//                    true -> {
 
                         GlobalScope.launch(Dispatchers.IO) {
 
-                            favoriteDB.dao().delete(FavoriteEntity(data.data.id!!, data.data.login!!, data.data.avatar_url!!))
-                            savedID = favoriteDB.dao().getID()
+                            favoriteDB.dao().delete(FavoriteEntity(data.data.id, data.data.login, data.data.avatar_url))
+                            favoriteViewModel.getFavoriteData(applicationContext)
+
+//                            savedID = favoriteDB.dao().getID()
 
                             withContext(Dispatchers.Main) {
-                                bind.ivFavorite.isSelected = false
+//                                bind.ivFavorite.isSelected = false
                                 val sfs = favoriteDB.dao().getID()
                                 for (vv in sfs){
                                     Log.e("delete", vv.toString())
                                 }
                             }
                         }
-                    }
+//                    }
 
-                    //즐겨찾기 활성화
-                    false -> {
-
-                        GlobalScope.launch(Dispatchers.IO) {
-
-                            favoriteDB.dao().insertData(FavoriteEntity(data.data.id!!, data.data.login!!, data.data.avatar_url!!))
-                            savedID = favoriteDB.dao().getID()
-
-                            withContext(Dispatchers.Main) {
-                                bind.ivFavorite.isSelected = true
-
-                                val sfs = favoriteDB.dao().getID()
-                                for (vv in sfs){
-                                    Log.e("save", vv.toString())
-                                }
-                            }
-                        }
-                    }
-                }
+//                    //즐겨찾기 활성화
+//                    false -> {
+//
+//                        GlobalScope.launch(Dispatchers.IO) {
+//
+//                            favoriteDB.dao().insertData(FavoriteEntity(data.data.id, data.data.login, data.data.avatar_url))
+////                            savedID = favoriteDB.dao().getID()
+//
+//                            withContext(Dispatchers.Main) {
+//                                bind.ivFavorite.isSelected = true
+//
+//                                val sfs = favoriteDB.dao().getID()
+//                                for (vv in sfs){
+//                                    Log.e("save", vv.toString())
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
             }
         }
     }

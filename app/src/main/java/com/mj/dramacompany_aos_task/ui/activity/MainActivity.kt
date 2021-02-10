@@ -11,7 +11,6 @@ import com.mj.dramacompany_aos_task.config.SEARCH
 import com.mj.dramacompany_aos_task.databinding.ActivityMainBinding
 import com.mj.dramacompany_aos_task.ui.fragment.FavoriteFragment
 import com.mj.dramacompany_aos_task.ui.fragment.SearchFragment
-import com.mj.dramacompany_aos_task.viewmodel.MainViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,7 +20,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
 
         dataBinding()
 
@@ -30,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     //데이터 바인딩을 위해 레이아웃과 연결하고 라이프사이클에 종속시킵니다.
     private fun dataBinding() {
         mainDataBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        mainDataBinding.mainViewModel = MainViewModel()
         mainDataBinding.lifecycleOwner = this
 
         initLayout()
@@ -38,7 +36,6 @@ class MainActivity : AppCompatActivity() {
 
     //화면의 기능 구현에 필요한 요소들을 정의해줍니다.
     private fun initLayout() {
-
 
         mainDataBinding.tabMain.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {

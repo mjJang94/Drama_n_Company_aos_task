@@ -8,7 +8,6 @@ open class Util {
 
     companion object{
 
-
         //한글에서 맨 앞글자의 초성을 구하는 메소드
         fun getInitialSound(text: String): String? {
             val chs = arrayOf(

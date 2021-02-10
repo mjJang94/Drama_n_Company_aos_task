@@ -6,3 +6,5 @@ const val FAVORITE = 1
 
 const val FIX_PER_PAGE = 100
 const val FIX_PAGE = 1
+
+const val RESTRICT_NAME = "in:login"
