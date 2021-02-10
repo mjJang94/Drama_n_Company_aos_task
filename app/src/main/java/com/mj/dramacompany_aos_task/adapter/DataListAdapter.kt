@@ -6,16 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.RoomDatabase
 import com.bumptech.glide.RequestManager
 import com.mj.dramacompany_aos_task.database.FavoiteDB
 import com.mj.dramacompany_aos_task.database.FavoriteEntity
 import com.mj.dramacompany_aos_task.databinding.ListRowBinding
 import com.mj.dramacompany_aos_task.model.UserInfo
 import kotlinx.coroutines.*
-import kotlin.math.sign
 
-class DataListAdapter(applicationContext: Context, var glide: RequestManager) : RecyclerView.Adapter<DataListAdapter.Holder>() {
+class DataListAdapter(applicationContext: Context, val fragmentType: Int,var glide: RequestManager) : RecyclerView.Adapter<DataListAdapter.Holder>() {
 
     private var userInfo: MutableList<AdapterItem> = ArrayList()
 
@@ -58,7 +56,7 @@ class DataListAdapter(applicationContext: Context, var glide: RequestManager) : 
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
 
-        holder.bind(userInfo[position])
+        holder.bind(userInfo[position], position)
     }
 
     override fun getItemCount(): Int {
@@ -68,18 +66,12 @@ class DataListAdapter(applicationContext: Context, var glide: RequestManager) : 
     inner class Holder(private val bind: ListRowBinding) : RecyclerView.ViewHolder(bind.root) {
 
 
-        fun bind(data: AdapterItem) {
+        fun bind(item: AdapterItem, position: Int) {
 
-            val tmpInitialName = data.initial.toString()
+            val tmpInitialName = item.initial.toString()
 
 
-            for (savedValue in savedID) {
-
-                if (data.data.id == savedValue) {
-                    bind.ivFavorite.isSelected = true
-                }
-            }
-
+            bind.ivFavorite.isSelected = savedID.contains(item.data.id)
 
             //저장한 초성과 다를경우 헤더뷰를 노출시키고 다른 초성값 적용
             if (tmpInitialName != initialName) {
@@ -92,12 +84,12 @@ class DataListAdapter(applicationContext: Context, var glide: RequestManager) : 
 
             //프로필 이미지 노출
             glide
-                .load(data.data.avatar_url)
+                .load(item.data.avatar_url)
                 .circleCrop()
                 .thumbnail(0.1f)
                 .into(bind.ivProfile)
 
-            bind.txtName.text = data.data.login
+            bind.txtName.text = item.data.login
 
 
             //row 클릭시 해당 데이터 저장 및 삭제
@@ -110,15 +102,11 @@ class DataListAdapter(applicationContext: Context, var glide: RequestManager) : 
 
                         GlobalScope.launch(Dispatchers.IO) {
 
-                            favoriteDB.dao().delete(FavoriteEntity(data.data.id!!, data.data.login!!, data.data.avatar_url!!))
+                            favoriteDB.dao().delete(FavoriteEntity(item.data.id!!, item.data.login!!, item.data.avatar_url!!))
                             savedID = favoriteDB.dao().getID()
 
                             withContext(Dispatchers.Main) {
                                 bind.ivFavorite.isSelected = false
-                                val sfs = favoriteDB.dao().getID()
-                                for (vv in sfs){
-                                    Log.e("delete", vv.toString())
-                                }
                             }
                         }
                     }
@@ -128,16 +116,11 @@ class DataListAdapter(applicationContext: Context, var glide: RequestManager) : 
 
                         GlobalScope.launch(Dispatchers.IO) {
 
-                            favoriteDB.dao().insertData(FavoriteEntity(data.data.id!!, data.data.login!!, data.data.avatar_url!!))
+                            favoriteDB.dao().insertData(FavoriteEntity(item.data.id!!, item.data.login!!, item.data.avatar_url!!))
                             savedID = favoriteDB.dao().getID()
 
                             withContext(Dispatchers.Main) {
                                 bind.ivFavorite.isSelected = true
-
-                                val sfs = favoriteDB.dao().getID()
-                                for (vv in sfs){
-                                    Log.e("save", vv.toString())
-                                }
                             }
                         }
                     }

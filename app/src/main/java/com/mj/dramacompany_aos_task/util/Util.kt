@@ -3,33 +3,56 @@ package com.mj.dramacompany_aos_task.util
 import android.content.Context
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import com.mj.dramacompany_aos_task.model.UserInfo
 
 open class Util {
 
-    companion object{
+    //한글에서 맨 앞글자의 초성을 구하는 메소드
+    fun getInitialSound(text: String): String? {
+        val chs = arrayOf(
+            "ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ",
+            "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ",
+            "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ",
+            "ㅋ", "ㅌ", "ㅍ", "ㅎ"
+        )
+        if (text.isNotEmpty()) {
+            val chName = text[0]
+            if (chName.toInt() >= 0xAC00) {
+                val uniVal = chName.toInt() - 0xAC00
+                val cho = (uniVal - uniVal % 28) / 28 / 21
+                return chs[cho]
+            }
+        }
+        return null
+    }
 
-        //한글에서 맨 앞글자의 초성을 구하는 메소드
-        fun getInitialSound(text: String): String? {
-            val chs = arrayOf(
-                "ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ",
-                "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ",
-                "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ",
-                "ㅋ", "ㅌ", "ㅍ", "ㅎ"
-            )
-            if (text.isNotEmpty()) {
-                val chName = text[0]
-                if (chName.toInt() >= 0xAC00) {
-                    val uniVal = chName.toInt() - 0xAC00
-                    val cho = (uniVal - uniVal % 28) / 28 / 21
-                    return chs[cho]
+    //들어온 char 값이 한국어인지 아닌지 구분
+    fun isKorean(ch: Char): Boolean {
+        return ch.toInt() >= "AC00".toInt(16) && ch.toInt() <= "D7A3".toInt(16)
+    }
+
+
+    companion object {
+
+
+        //이름 순으로 정렬하고 초성별로 그룹핑 실행
+        fun sortByName(data: UserInfo): Map<Any?, List<UserInfo.Info>> {
+
+            data.items.sortWith(Comparator { item1, item2 ->
+
+                item1.login!!.toUpperCase().compareTo(item2.login!!.toUpperCase())
+            })
+
+            return data.items.groupBy {
+
+                val tmp = it.login?.get(0)
+
+                if (Util().isKorean(tmp!!)) {
+                    Util().getInitialSound(it.login.toString())
+                } else {
+                    tmp?.toUpperCase()
                 }
             }
-            return null
-        }
-
-        //들어온 char 값이 한국어인지 아닌지 구분
-        fun isKorean(ch: Char): Boolean {
-            return ch.toInt() >= "AC00".toInt(16) && ch.toInt() <= "D7A3".toInt(16)
         }
 
         fun hideKeyBoard(context: Context, view: View) {

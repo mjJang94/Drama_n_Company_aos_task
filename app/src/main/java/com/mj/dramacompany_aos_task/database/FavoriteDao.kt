@@ -14,18 +14,19 @@ interface FavoriteDao {
     @Query("select id from favorite")
     suspend fun getID(): List<Long>
 
-
     //해당 데이터 삽입
     @Insert(onConflict = REPLACE)
     suspend fun insertData(favoriteEntity: FavoriteEntity)
 
-
-    //해당 id 칼럼 삭제
+    //해당 데이터 삭제
     @Delete
     suspend fun delete(favoriteEntity: FavoriteEntity)
 
     //모든 데이터 가져오기
     @Query("select * from favorite")
     suspend fun getAll(): List<FavoriteEntity>
-//            <Map<Any?, List<UserInfo.Info>>
+
+    //아이디 값으로 데이터 가져오기
+    @Query("select * from favorite where login like :login")
+    suspend fun getDataByLogin(login: String): List<FavoriteEntity>
 }

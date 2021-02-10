@@ -7,8 +7,8 @@
         <import type="android.view.View" />
 
         <variable
-            name="searchViewModel"
-            type="com.mj.dramacompany_aos_task.viewmodel.SearchViewModel" />
+            name="viewModel"
+            type="com.mj.dramacompany_aos_task.viewmodel.FragmentViewModel" />
     </data>
 
 
@@ -48,24 +48,24 @@
                         android:layout_weight="1"
                         android:background="@null"
                         android:hint="@string/common_insert_name"
+                        android:imeOptions="actionDone"
+                        android:inputType="text"
                         android:maxLines="1"
                         android:singleLine="true"
-                        android:inputType="text"
-                        android:imeOptions="actionDone"
-                        android:text="@={searchViewModel.name}" />
+                        android:text="@={viewModel.name}" />
 
                     <LinearLayout
+                        android:id="@+id/ll_search_btn"
                         android:layout_width="48dp"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:onClick="@{() -> searchViewModel.getSearchData()}"
-                        android:visibility="@{searchViewModel.name.length() == 0 ? View.GONE : View.VISIBLE}" >
+                        android:visibility="@{viewModel.name.length() == 0 ? View.GONE : View.VISIBLE}">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center_vertical"
-                        android:src="@drawable/icon_search_search_24_g_7"/>
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center_vertical"
+                            android:src="@drawable/icon_search_search_24_g_7" />
 
                     </LinearLayout>
                 </LinearLayout>
@@ -76,14 +76,14 @@
             android:id="@+id/search_rcy_user"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="@{searchViewModel.existData ? View.VISIBLE : View.GONE}"/>
+            android:visibility="@{viewModel.existData ? View.VISIBLE : View.GONE}" />
 
         <LinearLayout
             android:id="@+id/ll_no_data"
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            android:visibility="@{searchViewModel.existData ? View.GONE : View.VISIBLE}"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="@{viewModel.existData ? View.GONE : View.VISIBLE}">
 
             <TextView
                 android:layout_width="match_parent"

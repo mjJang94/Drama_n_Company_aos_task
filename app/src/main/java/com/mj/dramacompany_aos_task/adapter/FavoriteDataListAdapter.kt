@@ -6,17 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.RoomDatabase
 import com.bumptech.glide.RequestManager
 import com.mj.dramacompany_aos_task.database.FavoiteDB
 import com.mj.dramacompany_aos_task.database.FavoriteEntity
 import com.mj.dramacompany_aos_task.databinding.ListRowBinding
-import com.mj.dramacompany_aos_task.model.UserInfo
-import com.mj.dramacompany_aos_task.viewmodel.FavoriteViewModel
 import kotlinx.coroutines.*
-import kotlin.math.sign
 
-class FavoriteDataListAdapter(val applicationContext: Context, var glide: RequestManager, var favoriteViewModel: FavoriteViewModel) : RecyclerView.Adapter<FavoriteDataListAdapter.Holder>() {
+class FavoriteDataListAdapter(val applicationContext: Context, var glide: RequestManager) : RecyclerView.Adapter<FavoriteDataListAdapter.Holder>() {
 
     private var userInfo: MutableList<AdapterItem> = ArrayList()
 
@@ -112,7 +108,7 @@ class FavoriteDataListAdapter(val applicationContext: Context, var glide: Reques
                         GlobalScope.launch(Dispatchers.IO) {
 
                             favoriteDB.dao().delete(FavoriteEntity(data.data.id, data.data.login, data.data.avatar_url))
-                            favoriteViewModel.getFavoriteData(applicationContext)
+//                            favoriteViewModel.getFavoriteData(applicationContext)
 
 //                            savedID = favoriteDB.dao().getID()
 
