@@ -1,6 +1,7 @@
 package com.mj.dramacompany_aos_task.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,10 +23,15 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FavoriteFragment : Fragment() {
+/**
+ * FavoriteUserFragment.kt
+ * SearchUserFragment 에서 즐겨찾기한 사용자를 검색하고, 즐겨찾기를 취소할 수 있는 fragment 입니다.
+ */
+class FavoriteUserFragment : Fragment() {
 
     private lateinit var binding: FragmentFavoriteBinding
     private lateinit var favoriteDB: FavoiteDB
+    private lateinit var adapter: DataListAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
@@ -39,9 +45,23 @@ class FavoriteFragment : Fragment() {
         return binding.root
     }
 
-    private fun initLayout(){
+    override fun onResume() {
+        super.onResume()
+
+        if (binding.viewModel!!.name.value.isNullOrEmpty()){
+            binding.viewModel!!.name.value = null
+        }
+        searchFavoriteByName()
+    }
+
+    private fun initLayout() {
         //리사이클러뷰에 어댑터 연결
-        val adapter = DataListAdapter(activity!!.applicationContext , Glide.with(this))
+        adapter = DataListAdapter(activity!!.applicationContext,
+            this,
+            Glide.with(this),
+            binding.viewModel!!.name,
+            binding.viewModel!!.firstSearch)
+
         binding.searchRcyUser.layoutManager = LinearLayoutManager(activity)
         binding.searchRcyUser.adapter = adapter
         binding.searchRcyUser.setHasFixedSize(true)
@@ -67,11 +87,11 @@ class FavoriteFragment : Fragment() {
     }
 
     // 검색어로 입력한 사용자이름에 매칭된 데이터 검색
-    private fun searchFavoriteByName(){
+    fun searchFavoriteByName() {
 
         GlobalScope.launch(Dispatchers.IO) {
 
-            val tmpItems = favoriteDB.dao().getDataByLogin(binding.viewModel!!.name.value!! + "%").map { UserInfo.Info(it.id, it.login, it.avatar_url) }
+            val tmpItems = favoriteDB.dao().getDataByLogin(binding.viewModel!!.name.value + "%").map { UserInfo.Info(it.id, it.login, it.avatar_url) }
             val userInfo = UserInfo()
 
             for (data in tmpItems) {
@@ -86,6 +106,8 @@ class FavoriteFragment : Fragment() {
                     binding.viewModel!!.existData.value = true
                     binding.viewModel!!.userInfo.value = Util.sortByName(userInfo)
                 }
+
+                binding.viewModel!!.firstSearch.value = true
 
             }
         }
