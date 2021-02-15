@@ -13,7 +13,7 @@ const val AUTHORIZATION = "Authorization"
 const val ACCEPT = "Accept"
 
 const val MEDIA_TYPE = "application/vnd.github.v3+json"
-const val TOKEN = "token 1897771d8a40f50d0e45a7f59766f92be180cfdb"
+const val TOKEN = "token ceb0a7261fc90338354a1f4b5e361519920ff07a"
 
 //Github Error code
 const val NOT_MODIFIED = 304
