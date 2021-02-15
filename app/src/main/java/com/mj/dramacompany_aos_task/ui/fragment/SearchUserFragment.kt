@@ -92,7 +92,7 @@ class SearchUserFragment : Fragment() {
 
     //검색 api
     private fun getSearchData() {
-        val headerMap = mapOf(ACCEPT to MEDIA_TYPE, AUTHORIZATION to TOKEN)
+        val headerMap = mapOf(ACCEPT to MEDIA_TYPE)
 
         RetrofitClient.getInstance()
             .create(RetrofitService::class.java)
