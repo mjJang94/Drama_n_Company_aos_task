@@ -45,6 +45,14 @@ class SearchUserFragment : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        if (!binding.viewModel!!.name.value.isNullOrEmpty()){
+            getSearchData()
+        }
+    }
+
     //화면 구현에 필요한 요소들을 정의해줍니다.
     private fun initLayout() {
 
@@ -116,6 +124,11 @@ class SearchUserFragment : Fragment() {
                             SERVICE_UNAVAILABLE -> {
                                 Toast.makeText(activity!!.applicationContext, getString(R.string.error_service_unavailable), Toast.LENGTH_SHORT).show()
                             }
+
+                            NO_TOKEN -> {
+                                Toast.makeText(activity!!.applicationContext, getString(R.string.error_token_expired), Toast.LENGTH_SHORT).show()
+                            }
+
 
                             else -> {
                                 Toast.makeText(activity!!.applicationContext, getString(R.string.error_unknown) + response.code(), Toast.LENGTH_SHORT).show()
