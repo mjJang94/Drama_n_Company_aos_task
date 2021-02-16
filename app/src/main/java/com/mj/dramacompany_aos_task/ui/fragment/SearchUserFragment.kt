@@ -13,17 +13,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.mj.dramacompany_aos_task.R
 import com.mj.dramacompany_aos_task.adapter.DataListAdapter
-import com.mj.dramacompany_aos_task.config.*
-import com.mj.dramacompany_aos_task.config.api.RetrofitClient
-import com.mj.dramacompany_aos_task.config.api.RetrofitService
+import com.mj.dramacompany_aos_task.config.NOT_MODIFIED
+import com.mj.dramacompany_aos_task.config.NO_TOKEN
+import com.mj.dramacompany_aos_task.config.SERVICE_UNAVAILABLE
+import com.mj.dramacompany_aos_task.config.VALIDATION_FAILED
 import com.mj.dramacompany_aos_task.databinding.FragmentSearchBinding
-import com.mj.dramacompany_aos_task.model.UserInfo
-import com.mj.dramacompany_aos_task.util.Util
 import com.mj.dramacompany_aos_task.viewmodel.FragmentViewModel
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.util.*
 
 /**
  * SearchUserFragment.kt
@@ -37,7 +32,7 @@ class SearchUserFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
-        binding.viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(FragmentViewModel::class.java)
+        binding.viewModel = ViewModelProvider(requireActivity(), FragmentViewModel.Factory(requireActivity().application)).get(FragmentViewModel::class.java)
         binding.lifecycleOwner = activity
 
         initLayout()
@@ -48,8 +43,8 @@ class SearchUserFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        if (!binding.viewModel!!.name.value.isNullOrEmpty()){
-            getSearchData()
+        if (!binding.viewModel!!.searchName.value.isNullOrEmpty()) {
+            binding.viewModel!!.getSearchData()
         }
     }
 
@@ -57,11 +52,18 @@ class SearchUserFragment : Fragment() {
     private fun initLayout() {
 
         //리사이클러뷰에 어댑터 연결
-        adapter = DataListAdapter(activity!!.applicationContext,
-            this,
-            Glide.with(this),
-            binding.viewModel!!.name,
-            binding.viewModel!!.firstSearch)
+        adapter = DataListAdapter({
+            //refreshListener
+            binding.viewModel!!.getIds()
+        }, { id, login, url ->
+            //insertListener
+            binding.viewModel!!.insert(id, login, url)
+
+        }, { id, login, url ->
+            //deleteListener
+            binding.viewModel!!.delete(id, login, url)
+
+        }, null, Glide.with(this), binding.viewModel!!.firstSearch)
 
         binding.searchRcyUser.layoutManager = LinearLayoutManager(activity)
         binding.searchRcyUser.adapter = adapter
@@ -71,14 +73,14 @@ class SearchUserFragment : Fragment() {
         //소프트 키보드 확인버튼을 클릭해도 api 호출
         binding.editSearch.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                getSearchData()
+                binding.viewModel!!.getSearchData()
             }
             false
         }
 
         //검색 버튼 클릭시 api 호출
         binding.llSearchBtn.setOnClickListener {
-            getSearchData()
+            binding.viewModel!!.getSearchData()
         }
 
         //live 데이터 userInfo 관찰
@@ -88,61 +90,30 @@ class SearchUserFragment : Fragment() {
                 adapter.setData(it)
             }
         })
-    }
 
-    //검색 api
-    private fun getSearchData() {
-        val headerMap = mapOf(ACCEPT to MEDIA_TYPE)
+        binding.viewModel!!.apiResponseError = { code ->
+            when (code) {
 
-        RetrofitClient.getInstance()
-            .create(RetrofitService::class.java)
-            .searchUser(headerMap, binding.viewModel!!.name.value + RESTRICT_NAME, FIX_PAGE, FIX_PER_PAGE).enqueue(object : Callback<UserInfo> {
-
-                override fun onResponse(call: Call<UserInfo>, response: Response<UserInfo>) {
-
-                    if (response.isSuccessful) {
-
-                        if (response.body()?.items!!.isEmpty()) {
-                            binding.viewModel!!.existData.value = false
-                        } else {
-                            binding.viewModel!!.existData.value = true
-                            binding.viewModel!!.userInfo.value = Util.sortByName(response.body()!!)
-                        }
-
-                    } else {
-
-                        when (response.code()) {
-
-                            NOT_MODIFIED -> {
-                                Toast.makeText(activity!!.applicationContext, getString(R.string.error_not_modified), Toast.LENGTH_SHORT).show()
-                            }
-
-                            VALIDATION_FAILED -> {
-                                Toast.makeText(activity!!.applicationContext, getString(R.string.error_unprocessable_entity), Toast.LENGTH_SHORT).show()
-                            }
-
-                            SERVICE_UNAVAILABLE -> {
-                                Toast.makeText(activity!!.applicationContext, getString(R.string.error_service_unavailable), Toast.LENGTH_SHORT).show()
-                            }
-
-                            NO_TOKEN -> {
-                                Toast.makeText(activity!!.applicationContext, getString(R.string.error_token_expired), Toast.LENGTH_SHORT).show()
-                            }
-
-
-                            else -> {
-                                Toast.makeText(activity!!.applicationContext, getString(R.string.error_unknown) + response.code(), Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                        binding.viewModel!!.existData.value = false
-                    }
+                NOT_MODIFIED -> {
+                    Toast.makeText(activity!!.applicationContext, getString(R.string.error_not_modified), Toast.LENGTH_SHORT).show()
                 }
 
-                override fun onFailure(call: Call<UserInfo>, t: Throwable) {
-                    binding.viewModel!!.existData.value = false
+                VALIDATION_FAILED -> {
+                    Toast.makeText(activity!!.applicationContext, getString(R.string.error_unprocessable_entity), Toast.LENGTH_SHORT).show()
                 }
-            })
 
-        binding.viewModel!!.firstSearch.value = true
+                SERVICE_UNAVAILABLE -> {
+                    Toast.makeText(activity!!.applicationContext, getString(R.string.error_service_unavailable), Toast.LENGTH_SHORT).show()
+                }
+
+                NO_TOKEN -> {
+                    Toast.makeText(activity!!.applicationContext, getString(R.string.error_token_expired), Toast.LENGTH_SHORT).show()
+                }
+
+                else -> {
+                    Toast.makeText(activity!!.applicationContext, getString(R.string.error_unknown) + code, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 }

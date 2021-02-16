@@ -52,14 +52,14 @@
                         android:inputType="text"
                         android:maxLines="1"
                         android:singleLine="true"
-                        android:text="@={viewModel.name}" />
+                        android:text="@={viewModel.searchName}" />
 
                     <LinearLayout
                         android:id="@+id/ll_search_btn"
                         android:layout_width="48dp"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:visibility="@{viewModel.name.length() == 0 ? View.GONE : View.VISIBLE}">
+                        android:visibility="@{viewModel.searchName.length() == 0 ? View.GONE : View.VISIBLE}">
 
                         <ImageView
                             android:layout_width="24dp"

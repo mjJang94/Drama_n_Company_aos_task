@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
-import com.mj.dramacompany_aos_task.database.FavoiteDB
+import com.mj.dramacompany_aos_task.database.FavoriteDB
 import com.mj.dramacompany_aos_task.database.FavoriteEntity
 import com.mj.dramacompany_aos_task.databinding.ListRowBinding
 import com.mj.dramacompany_aos_task.model.UserInfo
@@ -20,10 +20,11 @@ import kotlinx.coroutines.*
  * 사용자 검색 결과와 즐겨찾기 검색 결과에 대한 데이터들을 리스트로 표현하고, 각각의 동작을 정의하는 adapter 클래스 입니다.
  */
 class DataListAdapter(
-    applicationContext: Context,
-    val callerFragment: Fragment,
+    val refreshListener: () -> List<Long>,
+    val insertListener: (id: Long, login: String, url: String) -> Unit,
+    val deleteListener: (id: Long, login: String, url: String) -> Unit,
+    val reloadListener: (() -> Unit) ?= null,
     var glide: RequestManager,
-    var searchName: MutableLiveData<String>,
     var firstSearch: MutableLiveData<Boolean>
 ) : RecyclerView.Adapter<DataListAdapter.Holder>() {
 
@@ -31,7 +32,6 @@ class DataListAdapter(
 
     private lateinit var savedID: List<Long>
 
-    private var favoriteDB: FavoiteDB = FavoiteDB.getInstance(applicationContext)!!
 
     private var initialName: String = ""
 
@@ -58,9 +58,7 @@ class DataListAdapter(
     }
 
     private fun refreshSavedIDs() {
-        GlobalScope.launch(Dispatchers.IO) {
-            savedID = favoriteDB.dao().getID()
-        }
+        savedID = refreshListener()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -110,40 +108,27 @@ class DataListAdapter(
 
 
             //row 클릭시 해당 데이터 저장 및 삭제
-            bind.llWhole.setOnClickListener {
+            bind.llWhole.setOnClickListener { _ ->
 
                 when (bind.ivFavorite.isSelected) {
 
                     //즐겨찾기 비활성화
                     true -> {
 
-                        GlobalScope.launch(Dispatchers.IO) {
+                        deleteListener(item.data.id!!, item.data.login!!, item.data.avatar_url!!)
+                        refreshSavedIDs()
+                        reloadListener?.let { it -> it() }
 
-                            favoriteDB.dao().delete(FavoriteEntity(item.data.id!!, item.data.login!!, item.data.avatar_url!!))
-                            savedID = favoriteDB.dao().getID()
-
-                            if (callerFragment is FavoriteUserFragment) {
-                                callerFragment.searchFavoriteByName()
-                            }
-
-                            withContext(Dispatchers.Main) {
-                                bind.ivFavorite.isSelected = false
-                            }
-                        }
+                        bind.ivFavorite.isSelected = false
                     }
 
                     //즐겨찾기 활성화
                     false -> {
 
-                        GlobalScope.launch(Dispatchers.IO) {
+                        insertListener(item.data.id!!, item.data.login!!, item.data.avatar_url!!)
+                        refreshSavedIDs()
 
-                            favoriteDB.dao().insertData(FavoriteEntity(item.data.id!!, item.data.login!!, item.data.avatar_url!!))
-                            savedID = favoriteDB.dao().getID()
-
-                            withContext(Dispatchers.Main) {
-                                bind.ivFavorite.isSelected = true
-                            }
-                        }
+                        bind.ivFavorite.isSelected = true
                     }
                 }
             }

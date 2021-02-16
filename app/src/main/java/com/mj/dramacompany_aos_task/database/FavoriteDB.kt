@@ -6,20 +6,20 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(entities = [FavoriteEntity::class], version = 1)
-abstract class FavoiteDB : RoomDatabase() {
+abstract class FavoriteDB : RoomDatabase() {
 
     abstract fun dao(): FavoriteDao
 
     companion object {
 
-        private var instance: FavoiteDB? = null
+        private var instance: FavoriteDB? = null
 
-        fun getInstance(context: Context): FavoiteDB? {
+        fun getInstance(context: Context): FavoriteDB? {
             if (instance == null) {
-                synchronized(FavoiteDB::class.java) {
+                synchronized(FavoriteDB::class.java) {
                     instance = Room.databaseBuilder(
                         context,
-                        FavoiteDB::class.java, "favorite_db"
+                        FavoriteDB::class.java, "favorite_db"
                     )
                         .fallbackToDestructiveMigration()
                         .build()
