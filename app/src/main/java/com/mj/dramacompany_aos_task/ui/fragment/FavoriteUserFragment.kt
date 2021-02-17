@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.mj.dramacompany_aos_task.adapter.DataListAdapter
+import com.mj.dramacompany_aos_task.config.Repository
 import com.mj.dramacompany_aos_task.databinding.FragmentFavoriteBinding
 import com.mj.dramacompany_aos_task.viewmodel.FragmentViewModel
 
@@ -22,10 +23,15 @@ class FavoriteUserFragment : Fragment() {
 
     private lateinit var binding: FragmentFavoriteBinding
     private lateinit var adapter: DataListAdapter
+    private lateinit var repository : Repository
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+        //외부 repository 생성
+        repository = Repository(requireActivity().application)
+
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
-        binding.viewModel = ViewModelProvider(requireActivity(), FragmentViewModel.Factory(requireActivity().application)).get(FragmentViewModel::class.java)
+        binding.viewModel = ViewModelProvider(requireActivity(), FragmentViewModel.Factory(requireActivity().application, repository)).get(FragmentViewModel::class.java)
         binding.lifecycleOwner = activity
 
         initLayout()
@@ -60,14 +66,14 @@ class FavoriteUserFragment : Fragment() {
             //reloadListener
             binding.viewModel!!.searchFavoriteByName()
 
-        }, Glide.with(this), binding.viewModel!!.firstSearch)
+        }, Glide.with(this))
 
-        binding.searchRcyUser.layoutManager = LinearLayoutManager(activity)
-        binding.searchRcyUser.adapter = adapter
-        binding.searchRcyUser.setHasFixedSize(true)
+        binding.favoriteRcyUser.layoutManager = LinearLayoutManager(activity)
+        binding.favoriteRcyUser.adapter = adapter
+        binding.favoriteRcyUser.setHasFixedSize(true)
 
         //소프트 키보드 확인버튼을 클릭해도 api 호출
-        binding.editSearch.setOnEditorActionListener { _, actionId, _ ->
+        binding.editFavorite.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 binding.viewModel!!.searchFavoriteByName()
             }

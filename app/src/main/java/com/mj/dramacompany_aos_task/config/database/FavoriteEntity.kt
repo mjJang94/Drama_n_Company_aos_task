@@ -1,4 +1,4 @@
-package com.mj.dramacompany_aos_task.database
+package com.mj.dramacompany_aos_task.config.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

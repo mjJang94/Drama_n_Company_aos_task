@@ -8,10 +8,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.mj.dramacompany_aos_task.config.*
 import com.mj.dramacompany_aos_task.config.api.RetrofitClient
 import com.mj.dramacompany_aos_task.config.api.RetrofitService
-import com.mj.dramacompany_aos_task.database.FavoriteEntity
-import com.mj.dramacompany_aos_task.database.FavoriteRepository
+import com.mj.dramacompany_aos_task.config.database.FavoriteEntity
+import com.mj.dramacompany_aos_task.config.Repository
 import com.mj.dramacompany_aos_task.model.UserInfo
-import com.mj.dramacompany_aos_task.util.Util
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -21,31 +20,28 @@ import retrofit2.Response
  * SearchUserFragment, FavoriteUserFragment가 공통으로 참조하는 viewmodel 입니다.
  */
 
-class FragmentViewModel(application: Application) : AndroidViewModel(application) {
+class FragmentViewModel(application: Application, private val repository: Repository) : AndroidViewModel(application) {
 
-    private val repository = FavoriteRepository(application)
 
     var searchName: MutableLiveData<String> = MutableLiveData()
     var favoriteName: MutableLiveData<String> = MutableLiveData()
     var userInfo: MutableLiveData<Map<Any?, List<UserInfo.Info>>> = MutableLiveData()
     var existData: MutableLiveData<Boolean> = MutableLiveData(false)
-    var firstSearch: MutableLiveData<Boolean> = MutableLiveData(false)
 
-    var apiResponseError: ((code: Int) -> Unit)? = null
+    var apiResponseError: ((code: Int) -> Unit) ?= null
 
 
     // 검색어로 입력한 사용자이름에 매칭된 데이터 검색
     fun searchFavoriteByName() {
 
-        val info = repository.searchFavoriteByName(favoriteName)
-
-        if (info.items.isEmpty()) {
-            existData.value = false
-        } else {
-            existData.value = true
-            userInfo.value = sortByName(info)
+        repository.searchFavoriteByName(favoriteName) { info ->
+            if (info.items.isEmpty()) {
+                existData.value = false
+            } else {
+                existData.value = true
+                userInfo.value = sortByName(info)
+            }
         }
-        firstSearch.value = true
     }
 
     fun getIds(): List<Long> {
@@ -61,37 +57,17 @@ class FragmentViewModel(application: Application) : AndroidViewModel(application
         repository.insertData(FavoriteEntity(id, login, url))
     }
 
-
-    //검색 api
-    fun getSearchData() {
-        val headerMap = mapOf(ACCEPT to MEDIA_TYPE)
-
-        RetrofitClient.getInstance()
-            .create(RetrofitService::class.java)
-            .searchUser(headerMap, searchName.value + RESTRICT_NAME, FIX_PAGE, FIX_PER_PAGE).enqueue(object : Callback<UserInfo> {
-
-                override fun onResponse(call: Call<UserInfo>, response: Response<UserInfo>) {
-
-                    if (response.isSuccessful) {
-
-                        if (response.body()?.items!!.isEmpty()) {
-                            existData.value = false
-                        } else {
-                            existData.value = true
-                            userInfo.value = sortByName(response.body()!!)
-                        }
-
-                    } else {
-                        apiResponseError?.let { it(response.code()) }
-                        existData.value = false
-                    }
-                }
-
-                override fun onFailure(call: Call<UserInfo>, t: Throwable) {
-                    existData.value = false
-                }
+    fun searchUser(){
+        repository.getSearchData(searchName,
+            {it ->
+                //onSuccess
+                existData.value = true
+                userInfo.value = sortByName(it)
+            }, {errorCode ->
+               //onFail
+                existData.value = false
+                apiResponseError?.let { it -> it(errorCode ?: 0) }
             })
-        firstSearch.value = true
     }
 
     //이름 순으로 정렬하고 초성별로 그룹핑 실행
@@ -137,10 +113,10 @@ class FragmentViewModel(application: Application) : AndroidViewModel(application
     private fun isKorean(ch: Char): Boolean {
         return ch.toInt() >= "AC00".toInt(16) && ch.toInt() <= "D7A3".toInt(16)
     }
-    class Factory(private val application: Application) : ViewModelProvider.Factory {
+    class Factory(private val application: Application, private val repository: Repository) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return FragmentViewModel(application) as T
+            return FragmentViewModel(application, repository) as T
         }
     }
 }

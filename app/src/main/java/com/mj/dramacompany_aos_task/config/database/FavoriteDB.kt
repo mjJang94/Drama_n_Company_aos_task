@@ -1,4 +1,4 @@
-package com.mj.dramacompany_aos_task.database
+package com.mj.dramacompany_aos_task.config.database
 
 import android.content.Context
 import androidx.room.Database

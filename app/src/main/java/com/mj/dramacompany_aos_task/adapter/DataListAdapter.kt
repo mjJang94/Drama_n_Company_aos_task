@@ -1,19 +1,13 @@
 package com.mj.dramacompany_aos_task.adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
-import com.mj.dramacompany_aos_task.database.FavoriteDB
-import com.mj.dramacompany_aos_task.database.FavoriteEntity
 import com.mj.dramacompany_aos_task.databinding.ListRowBinding
 import com.mj.dramacompany_aos_task.model.UserInfo
-import com.mj.dramacompany_aos_task.ui.fragment.FavoriteUserFragment
-import kotlinx.coroutines.*
 
 /**
  * DataListAdapter.kt
@@ -24,8 +18,7 @@ class DataListAdapter(
     val insertListener: (id: Long, login: String, url: String) -> Unit,
     val deleteListener: (id: Long, login: String, url: String) -> Unit,
     val reloadListener: (() -> Unit) ?= null,
-    var glide: RequestManager,
-    var firstSearch: MutableLiveData<Boolean>
+    var glide: RequestManager
 ) : RecyclerView.Adapter<DataListAdapter.Holder>() {
 
     private var userInfo: MutableList<AdapterItem> = ArrayList()
@@ -92,7 +85,6 @@ class DataListAdapter(
                 bind.llInitializeArea.visibility = View.VISIBLE
                 bind.txtInitializeName.text = tmpInitialName
 
-                firstSearch.value = false
             } else {
                 bind.llInitializeArea.visibility = View.GONE
             }

@@ -13,10 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.mj.dramacompany_aos_task.R
 import com.mj.dramacompany_aos_task.adapter.DataListAdapter
-import com.mj.dramacompany_aos_task.config.NOT_MODIFIED
-import com.mj.dramacompany_aos_task.config.NO_TOKEN
-import com.mj.dramacompany_aos_task.config.SERVICE_UNAVAILABLE
-import com.mj.dramacompany_aos_task.config.VALIDATION_FAILED
+import com.mj.dramacompany_aos_task.config.*
 import com.mj.dramacompany_aos_task.databinding.FragmentSearchBinding
 import com.mj.dramacompany_aos_task.viewmodel.FragmentViewModel
 
@@ -28,11 +25,15 @@ class SearchUserFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
     private lateinit var adapter: DataListAdapter
-
+    private lateinit var repository : Repository
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+        //외부 repository 생성
+        repository = Repository(requireActivity().application)
+
         binding = FragmentSearchBinding.inflate(inflater, container, false)
-        binding.viewModel = ViewModelProvider(requireActivity(), FragmentViewModel.Factory(requireActivity().application)).get(FragmentViewModel::class.java)
+        binding.viewModel = ViewModelProvider(requireActivity(), FragmentViewModel.Factory(requireActivity().application, repository)).get(FragmentViewModel::class.java)
         binding.lifecycleOwner = activity
 
         initLayout()
@@ -44,7 +45,7 @@ class SearchUserFragment : Fragment() {
         super.onResume()
 
         if (!binding.viewModel!!.searchName.value.isNullOrEmpty()) {
-            binding.viewModel!!.getSearchData()
+            binding.viewModel!!.searchUser()
         }
     }
 
@@ -58,12 +59,13 @@ class SearchUserFragment : Fragment() {
         }, { id, login, url ->
             //insertListener
             binding.viewModel!!.insert(id, login, url)
-
         }, { id, login, url ->
             //deleteListener
             binding.viewModel!!.delete(id, login, url)
-
-        }, null, Glide.with(this), binding.viewModel!!.firstSearch)
+        }, {
+            //reloadListener
+            binding.viewModel!!.searchUser()
+        }, Glide.with(this))
 
         binding.searchRcyUser.layoutManager = LinearLayoutManager(activity)
         binding.searchRcyUser.adapter = adapter
@@ -73,14 +75,14 @@ class SearchUserFragment : Fragment() {
         //소프트 키보드 확인버튼을 클릭해도 api 호출
         binding.editSearch.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                binding.viewModel!!.getSearchData()
+                binding.viewModel!!.searchUser()
             }
             false
         }
 
         //검색 버튼 클릭시 api 호출
         binding.llSearchBtn.setOnClickListener {
-            binding.viewModel!!.getSearchData()
+            binding.viewModel!!.searchUser()
         }
 
         //live 데이터 userInfo 관찰
