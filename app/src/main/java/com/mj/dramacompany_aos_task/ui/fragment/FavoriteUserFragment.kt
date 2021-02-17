@@ -85,7 +85,7 @@ class FavoriteUserFragment : Fragment() {
             binding.viewModel!!.searchFavoriteByName()
         }
 
-        binding.viewModel!!.userInfo.observe(this, Observer { data ->
+        binding.viewModel!!.favoriteUserInfo.observe(this, Observer { data ->
             data.let {
                 adapter.setData(it)
             }

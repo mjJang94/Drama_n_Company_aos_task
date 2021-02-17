@@ -25,7 +25,7 @@ class SearchUserFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
     private lateinit var adapter: DataListAdapter
-    private lateinit var repository : Repository
+    private lateinit var repository: Repository
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -86,7 +86,7 @@ class SearchUserFragment : Fragment() {
         }
 
         //live 데이터 userInfo 관찰
-        binding.viewModel!!.userInfo.observe(this, Observer { data ->
+        binding.viewModel!!.searchUserInfo.observe(this, Observer { data ->
             //데이터를 adapter에 전달하여 row 구성
             data.let {
                 adapter.setData(it)

@@ -5,15 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.mj.dramacompany_aos_task.config.*
-import com.mj.dramacompany_aos_task.config.api.RetrofitClient
-import com.mj.dramacompany_aos_task.config.api.RetrofitService
 import com.mj.dramacompany_aos_task.config.database.FavoriteEntity
 import com.mj.dramacompany_aos_task.config.Repository
 import com.mj.dramacompany_aos_task.model.UserInfo
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 /**
  * FragmentViewModel.kt
@@ -22,10 +16,14 @@ import retrofit2.Response
 
 class FragmentViewModel(application: Application, private val repository: Repository) : AndroidViewModel(application) {
 
-
+    //검색 화면에서 사용하는 데이터
     var searchName: MutableLiveData<String> = MutableLiveData()
+    var searchUserInfo: MutableLiveData<Map<Any?, List<UserInfo.Info>>> = MutableLiveData()
+
+    //즐겨찾기 화면에서 사용하는 데이터
     var favoriteName: MutableLiveData<String> = MutableLiveData()
-    var userInfo: MutableLiveData<Map<Any?, List<UserInfo.Info>>> = MutableLiveData()
+    var favoriteUserInfo: MutableLiveData<Map<Any?, List<UserInfo.Info>>> = MutableLiveData()
+
     var existData: MutableLiveData<Boolean> = MutableLiveData(false)
 
     var apiResponseError: ((code: Int) -> Unit) ?= null
@@ -39,7 +37,7 @@ class FragmentViewModel(application: Application, private val repository: Reposi
                 existData.value = false
             } else {
                 existData.value = true
-                userInfo.value = sortByName(info)
+                favoriteUserInfo.value = sortByName(info)
             }
         }
     }
@@ -62,7 +60,7 @@ class FragmentViewModel(application: Application, private val repository: Reposi
             {it ->
                 //onSuccess
                 existData.value = true
-                userInfo.value = sortByName(it)
+                searchUserInfo.value = sortByName(it)
             }, {errorCode ->
                //onFail
                 existData.value = false
