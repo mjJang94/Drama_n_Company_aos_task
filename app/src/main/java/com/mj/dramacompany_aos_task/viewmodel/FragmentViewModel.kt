@@ -108,7 +108,7 @@ class FragmentViewModel(application: Application, private val repository: Reposi
     }
 
     //들어온 char 값이 한국어인지 아닌지 구분
-    private fun isKorean(ch: Char): Boolean {
+    fun isKorean(ch: Char): Boolean {
         return ch.toInt() >= "AC00".toInt(16) && ch.toInt() <= "D7A3".toInt(16)
     }
     class Factory(private val application: Application, private val repository: Repository) : ViewModelProvider.Factory {

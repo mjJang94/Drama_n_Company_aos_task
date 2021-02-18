@@ -31,7 +31,7 @@ class ExampleInstrumentedTest {
     }
 
     @Test
-    fun roomTest() = runBlocking{
+    fun roomInsertTest() = runBlocking{
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
         val favoriteDatabase = FavoriteDB.getInstance(appContext.applicationContext)!!
@@ -48,5 +48,47 @@ class ExampleInstrumentedTest {
 
         //then
         assertEquals( user.items[0].id, userFromDB[0].id)
+    }
+
+    @Test
+    fun roomDeleteTest() = runBlocking{
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+
+        val favoriteDatabase = FavoriteDB.getInstance(appContext.applicationContext)!!
+        val favoriteDao: FavoriteDao = favoriteDatabase.dao()
+
+        //given
+        favoriteDao.insertData( FavoriteEntity(1, "장민종", "www.naver.com"))
+
+        //when
+        favoriteDao.delete(FavoriteEntity(1, "장민종", "www.naver.com"))
+
+        //then
+        val userFromDB = favoriteDao.getDataByLogin("장민종")
+
+
+        assertEquals( 0, userFromDB.size)
+
+    }
+
+    @Test
+    fun apiTest() {
+
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val repository = Repository(appContext)
+
+
+        val name: MutableLiveData<String> = MutableLiveData("mjJang94")
+
+        repository.getSearchData(name, {
+            //success
+
+            val responseName = it.items[0].login
+
+            assertEquals("mjJang94", responseName)
+
+        }, {
+            //onfail
+        })
     }
 }
